@@ -42,7 +42,14 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const AIInsights: React.FC<{ projects: any[] }> = ({ projects }) => {
+function initialsFromName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+const AIInsights: React.FC = () => {
   const [analyzing, setAnalyzing] = React.useState(true);
   const [insight, setInsight] = React.useState("");
   
@@ -216,13 +223,24 @@ const SystemTerminal: React.FC = () => {
 
 const SystemSublayersStream: React.FC<{ stack: string[] }> = ({ stack }) => {
   const [activeIdx, setActiveIdx] = React.useState(0);
-  
+
   React.useEffect(() => {
+    if (stack.length === 0) return;
     const interval = setInterval(() => {
-      setActiveIdx(prev => (prev + 1) % stack.length);
+      setActiveIdx((prev) => (prev + 1) % stack.length);
     }, 3000);
     return () => clearInterval(interval);
   }, [stack]);
+
+  if (stack.length === 0) {
+    return (
+      <div className="relative p-8 bg-white/[0.01] border border-white/5 rounded-3xl min-h-[200px] flex items-center justify-center">
+        <p className="text-[10px] text-white/30 uppercase tracking-widest font-black text-center px-4">
+          No stack tags in preview — public repo languages/topics will stream here.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative p-8 bg-white/[0.01] border border-white/5 rounded-3xl overflow-hidden group min-h-[400px]">
@@ -586,6 +604,11 @@ const LegendHeading: React.FC<{ number: string, title: string, subtitle?: string
 
 const CreativeTemplate: React.FC<PortfolioProps> = ({ data, embedded = false }) => {
   const { about, featured_projects, tech_stack, github_stats, contact } = data;
+  const bioText = about.bio?.trim() || 'Building in public on GitHub.';
+  const nameParts = about.name.trim().split(/\s+/).filter(Boolean);
+  const firstName = nameParts[0] ?? 'Developer';
+  const restName = nameParts.slice(1).join(' ');
+  const primary = github_stats.primary_language?.trim() || '';
 
   return (
     <div className="min-h-screen bg-[#080809] text-[#E0E0E6] selection:bg-cyan-500 selection:text-black font-mono overflow-x-hidden futuristic-scroll">
@@ -670,28 +693,44 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data, embedded = false }) 
                     ))}
                   </div>
                   
-                  {about.avatar_url && (
-                    <ScrollParallaxLayer depth={0.75} className="relative inline-block">
+                  <ScrollParallaxLayer depth={0.75} intensity="soft" className="relative inline-block">
+                    {about.avatar_url ? (
                       <img
                         src={about.avatar_url}
-                        alt={about.name}
+                        alt=""
                         className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-2xl object-cover grayscale brightness-[0.6] group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-700 border border-cyan-500/20 shadow-[0_20px_50px_-20px_rgba(34,211,238,0.25)]"
                       />
-                    </ScrollParallaxLayer>
-                  )}
+                    ) : (
+                      <div
+                        className="relative flex h-32 w-32 lg:h-40 lg:w-40 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-2xl font-black text-cyan-500/50"
+                        aria-hidden
+                      >
+                        {initialsFromName(about.name)}
+                      </div>
+                    )}
+                  </ScrollParallaxLayer>
                 </div>
 
                 <div className="space-y-4">
                   <h1 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase italic leading-none">
-                    {about.name.split(' ')[0]}<br />
-                    <span className="text-transparent stroke-text" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>
-                      {about.name.split(' ')[1] || 'DEV'}
+                    {firstName}
+                    <br />
+                    <span
+                      className="text-transparent stroke-text"
+                      style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}
+                    >
+                      {restName || '—'}
                     </span>
                   </h1>
                   <p className="text-xs text-white/40 leading-relaxed italic">
                     {"// "}
-                    {about.bio}
+                    {bioText}
                   </p>
+                  {primary ? (
+                    <p className="text-[9px] text-cyan-500/50 uppercase tracking-widest font-black">
+                      Primary_lang: <span className="text-cyan-400">{primary}</span>
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/5">
@@ -717,7 +756,7 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data, embedded = false }) 
             </section>
             </ScrollReveal3D>
 
-            <AIInsights projects={featured_projects} />
+            <AIInsights />
             
             <div className="hidden lg:block">
               <SystemSublayersStream stack={tech_stack} />
@@ -744,6 +783,11 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data, embedded = false }) 
                 />
 
                 <div className="space-y-6">
+                  {featured_projects.length === 0 ? (
+                    <p className="text-xs text-white/30 italic leading-relaxed py-8 border border-dashed border-white/10 rounded-2xl text-center px-6">
+                      {'// '}No public repositories in this preview — try another username or confirm repos are public.
+                    </p>
+                  ) : null}
                   {featured_projects.map((project, i) => (
                     <motion.div
                       key={project.id}
@@ -757,27 +801,37 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data, embedded = false }) 
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="space-y-4">
                           <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-black text-cyan-500/40 italic">0{i + 1}</span>
+                            <span className="text-[10px] font-black text-cyan-500/40 italic">
+                              {String(i + 1).padStart(2, '0')}
+                            </span>
                             <h3 className="text-2xl lg:text-3xl font-black uppercase italic group-hover/item:text-cyan-400 transition-colors">
                               {project.name}
                             </h3>
                           </div>
                           
                           <div className="flex flex-wrap gap-2">
-                            <span className="text-[8px] px-2 py-0.5 bg-cyan-500/10 text-cyan-400 rounded border border-cyan-500/20 uppercase tracking-widest font-black">
-                              {project.language}
-                            </span>
-                            {project.topics?.slice(0, 3).map(topic => (
+                            {project.language ? (
+                              <span className="text-[8px] px-2 py-0.5 bg-cyan-500/10 text-cyan-400 rounded border border-cyan-500/20 uppercase tracking-widest font-black">
+                                {project.language}
+                              </span>
+                            ) : (
+                              <span className="text-[8px] px-2 py-0.5 bg-white/5 text-white/25 rounded border border-white/10 uppercase tracking-widest font-black">
+                                —
+                              </span>
+                            )}
+                            {project.topics?.slice(0, 3).map((topic) => (
                               <span key={topic} className="text-[8px] px-2 py-0.5 bg-white/5 text-white/40 rounded border border-white/5 uppercase tracking-widest">
                                 {topic}
                               </span>
                             ))}
                           </div>
                           
-                          <p className="text-xs lg:text-sm text-white/40 leading-relaxed italic max-w-xl group-hover/item:text-white/70 transition-colors">
-                            {"// "}
-                            {project.description}
-                          </p>
+                          {project.description?.trim() ? (
+                            <p className="text-xs lg:text-sm text-white/40 leading-relaxed italic max-w-xl group-hover/item:text-white/70 transition-colors">
+                              {"// "}
+                              {project.description.trim()}
+                            </p>
+                          ) : null}
                         </div>
 
                         <div className="flex items-center gap-6">
@@ -885,10 +939,10 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data, embedded = false }) 
         </div>
 
         <footer className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity duration-1000">
-          <div className="flex items-center gap-4 text-[10px] font-black text-white/20 tracking-[0.4em] uppercase">
+          <div className="flex flex-wrap items-center gap-4 text-[10px] font-black text-white/20 tracking-[0.4em] uppercase">
             <span>© {new Date().getFullYear()} {about.name}</span>
             <div className="w-1.5 h-1.5 bg-white/10 rounded-full" />
-            <span>Devanta_Protocol_V3.2</span>
+            <span>Made with Devanta</span>
           </div>
           <div className="flex gap-10">
             <span className="text-[9px] font-black text-white/10 uppercase tracking-widest hover:text-cyan-500 transition-colors cursor-pointer">Security_Audit</span>

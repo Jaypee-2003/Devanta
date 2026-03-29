@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { motion } from 'framer-motion';
 import PreviewChrome from '@/components/landing/PreviewChrome';
 import PortfolioRenderer from '@/components/templates/PortfolioRenderer';
@@ -22,6 +22,13 @@ export default function CreationView({
   onTemplateChange,
   onBack,
 }: CreationViewProps) {
+  // After generate or template switch, land on the hero (top) — not mid-page scroll.
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [template]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -33,7 +40,7 @@ export default function CreationView({
 
       <div className="relative z-0 isolate">
         <TemplateSwitcher current={template} onSelect={onTemplateChange} />
-        <PortfolioRenderer data={data} templateName={template} embedded />
+        <PortfolioRenderer key={template} data={data} templateName={template} embedded />
       </div>
     </motion.div>
   );
