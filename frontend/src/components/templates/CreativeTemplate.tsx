@@ -32,6 +32,11 @@ import {
 
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import {
+  CreativeScrollBackdrop,
+  ScrollReveal3D,
+  ScrollParallaxLayer,
+} from '@/components/motion/ScrollScene3D';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -94,7 +99,8 @@ const AIInsights: React.FC<{ projects: any[] }> = ({ projects }) => {
             animate={{ opacity: 1, y: 0 }}
             className="text-xs text-white/60 leading-relaxed italic"
           >
-            // {insight}
+            {"// "}
+            {insight}
           </motion.p>
         )}
       </AnimatePresence>
@@ -463,8 +469,8 @@ const NeuralBreaker: React.FC = () => {
       </div>
       
       <div className="mt-4 flex justify-between items-center text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">
-        <span>// Move Mouse to Control</span>
-        <span>// Bypass_System_Restrictions</span>
+        <span>{"// Move Mouse to Control"}</span>
+        <span>{"// Bypass_System_Restrictions"}</span>
       </div>
     </div>
   );
@@ -497,7 +503,7 @@ const AIAssistantHUD: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-32 right-10 z-[110] flex flex-col items-end gap-4">
+    <div className="fixed bottom-32 right-10 z-[30] flex flex-col items-end gap-4">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -578,61 +584,73 @@ const LegendHeading: React.FC<{ number: string, title: string, subtitle?: string
   </div>
 );
 
-const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
+const CreativeTemplate: React.FC<PortfolioProps> = ({ data, embedded = false }) => {
   const { about, featured_projects, tech_stack, github_stats, contact } = data;
 
   return (
     <div className="min-h-screen bg-[#080809] text-[#E0E0E6] selection:bg-cyan-500 selection:text-black font-mono overflow-x-hidden futuristic-scroll">
       <AIAssistantHUD />
 
-      {/* Background Architecture */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      {/* Background Architecture + scroll-linked grid */}
+      <motion.div
+        className="fixed inset-0 z-0 pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2 }}
+      >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(10,10,12,1)_0%,rgba(5,5,6,1)_100%)]" />
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:60px_60px]" />
-        
+
         {/* Color Science: Atmospheric Glows */}
         <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-cyan-500/[0.03] blur-[150px] rounded-full" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-fuchsia-500/[0.02] blur-[150px] rounded-full" />
-      </div>
+      </motion.div>
+      <CreativeScrollBackdrop />
 
-      {/* Persistent System Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-20 border-b border-white/[0.03] bg-[#080809]/80 backdrop-blur-xl flex items-center px-10">
-        <div className="flex items-center gap-8 w-full">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-white/[0.02] border border-white/5 rounded-lg flex items-center justify-center">
-              <ShieldCheck size={20} className="text-cyan-500" />
+      {!embedded && (
+        <header className="fixed top-0 left-0 right-0 z-30 h-20 border-b border-white/[0.03] bg-[#080809]/80 backdrop-blur-xl flex items-center px-10">
+          <div className="flex items-center gap-8 w-full">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-white/[0.02] border border-white/5 rounded-lg flex items-center justify-center">
+                <ShieldCheck size={20} className="text-cyan-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-black tracking-[0.3em] uppercase">Devanta_OS</span>
+                <span className="text-[9px] text-white/20 tracking-widest uppercase">Legend_Protocol_v3.2</span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-[11px] font-black tracking-[0.3em] uppercase">Devanta_OS</span>
-              <span className="text-[9px] text-white/20 tracking-widest uppercase">Legend_Protocol_v3.2</span>
+
+            <div className="h-8 w-px bg-white/5" />
+
+            <div className="hidden md:flex items-center gap-10">
+              <div className="flex items-center gap-3">
+                <Radio size={14} className="text-cyan-500 animate-pulse" />
+                <span className="text-[9px] font-bold text-white/40 tracking-[0.2em] uppercase">Uplink: Active</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Activity size={14} className="text-fuchsia-500" />
+                <span className="text-[9px] font-bold text-white/40 tracking-[0.2em] uppercase">Core: Stable</span>
+              </div>
+            </div>
+
+            <div className="ml-auto flex items-center gap-6">
+              <SystemTerminal />
             </div>
           </div>
+        </header>
+      )}
 
-          <div className="h-8 w-px bg-white/5" />
-
-          <div className="hidden md:flex items-center gap-10">
-            <div className="flex items-center gap-3">
-              <Radio size={14} className="text-cyan-500 animate-pulse" />
-              <span className="text-[9px] font-bold text-white/40 tracking-[0.2em] uppercase">Uplink: Active</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Activity size={14} className="text-fuchsia-500" />
-              <span className="text-[9px] font-bold text-white/40 tracking-[0.2em] uppercase">Core: Stable</span>
-            </div>
-          </div>
-
-          <div className="ml-auto flex items-center gap-6">
-             <SystemTerminal />
-          </div>
-        </div>
-      </header>
-
-      <main className="relative z-10 pt-32 pb-20 max-w-[1800px] mx-auto px-6 lg:px-10">
+      <main
+        className={`relative z-10 pb-20 max-w-[1800px] mx-auto px-6 lg:px-10 ${
+          embedded ? 'pt-6 md:pt-10' : 'pt-32'
+        }`}
+      >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
           
           {/* SIDEBAR LEFT (3 cols) */}
           <div className="lg:col-span-3 space-y-8">
-            <section className="p-8 bg-white/[0.01] border border-white/5 rounded-3xl relative overflow-hidden group">
+            <ScrollReveal3D variant="creative" className="rounded-3xl">
+              <section className="p-8 bg-gradient-to-br from-white/[0.04] to-transparent border border-cyan-500/15 rounded-3xl relative overflow-hidden group shadow-[0_24px_80px_-40px_rgba(34,211,238,0.12)]">
               <div className="absolute top-0 right-0 p-6 opacity-5">
                 <Lock size={60} />
               </div>
@@ -653,11 +671,13 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
                   </div>
                   
                   {about.avatar_url && (
-                    <img 
-                      src={about.avatar_url} 
-                      alt={about.name} 
-                      className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-2xl object-cover grayscale brightness-[0.6] group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-700 border border-white/5"
-                    />
+                    <ScrollParallaxLayer depth={0.75} className="relative inline-block">
+                      <img
+                        src={about.avatar_url}
+                        alt={about.name}
+                        className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-2xl object-cover grayscale brightness-[0.6] group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-700 border border-cyan-500/20 shadow-[0_20px_50px_-20px_rgba(34,211,238,0.25)]"
+                      />
+                    </ScrollParallaxLayer>
                   )}
                 </div>
 
@@ -669,7 +689,8 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
                     </span>
                   </h1>
                   <p className="text-xs text-white/40 leading-relaxed italic">
-                    // {about.bio}
+                    {"// "}
+                    {about.bio}
                   </p>
                 </div>
 
@@ -688,12 +709,13 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
                   href={contact.socials.github}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 bg-white text-black font-black uppercase tracking-[0.3em] text-[9px] flex items-center justify-center gap-3 transition-colors hover:bg-cyan-400 rounded-xl"
+                  className="w-full py-4 bg-white text-black font-black uppercase tracking-[0.3em] text-[9px] flex items-center justify-center gap-3 transition-colors hover:bg-cyan-400 rounded-xl shadow-[0_12px_32px_-12px_rgba(34,211,238,0.35)]"
                 >
                   Sync_Archive <Github size={14} />
                 </motion.a>
               </div>
             </section>
+            </ScrollReveal3D>
 
             <AIInsights projects={featured_projects} />
             
@@ -704,6 +726,7 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
 
           {/* MAIN CENTER (6 cols) */}
           <div className="lg:col-span-6 space-y-10">
+            <ScrollReveal3D variant="creative" className="block">
             <section className="bg-white/[0.01] border border-white/5 rounded-3xl overflow-hidden relative group">
               {/* AI System Scanner Line */}
               <motion.div 
@@ -722,13 +745,15 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
 
                 <div className="space-y-6">
                   {featured_projects.map((project, i) => (
-                    <motion.div 
+                    <motion.div
                       key={project.id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 24 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-6 lg:p-8 bg-white/[0.02] border border-white/5 rounded-2xl group/item hover:bg-white/[0.04] transition-all duration-500 relative"
+                      transition={{ delay: i * 0.08, type: 'spring', stiffness: 260, damping: 28 }}
+                      viewport={{ once: true }}
+                      className="transform-gpu"
                     >
+                    <div className="p-6 lg:p-8 bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-cyan-500/10 rounded-2xl group/item hover:border-cyan-500/30 hover:shadow-[0_28px_60px_-32px_rgba(34,211,238,0.15)] transition-all duration-500 relative">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="space-y-4">
                           <div className="flex items-center gap-4">
@@ -750,7 +775,8 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
                           </div>
                           
                           <p className="text-xs lg:text-sm text-white/40 leading-relaxed italic max-w-xl group-hover/item:text-white/70 transition-colors">
-                            // {project.description}
+                            {"// "}
+                            {project.description}
                           </p>
                         </div>
 
@@ -767,14 +793,16 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
                           </a>
                         </div>
                       </div>
+                    </div>
                     </motion.div>
                   ))}
                 </div>
               </div>
             </section>
+            </ScrollReveal3D>
 
             {/* System: Secure Transmission */}
-            <section className="grid md:grid-cols-2 gap-8 lg:gap-10">
+            <ScrollReveal3D variant="creative" className="grid md:grid-cols-2 gap-8 lg:gap-10">
                <div className="p-8 lg:p-10 bg-white/[0.01] border border-white/5 rounded-3xl space-y-8">
                   <LegendHeading 
                     number="0x02" 
@@ -787,9 +815,20 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
                   </p>
                   <div className="p-6 bg-black/40 border border-white/5 rounded-2xl group hover:border-cyan-500/30 transition-colors">
                     <span className="text-[8px] text-white/20 uppercase tracking-widest block mb-2 font-black">Endpoint</span>
-                    <a href={`mailto:${contact.email}`} className="text-base lg:text-lg font-black break-all group-hover:text-cyan-400 transition-colors italic">
-                      {contact.email}
-                    </a>
+                    {contact.email ? (
+                      <a href={`mailto:${contact.email}`} className="text-base lg:text-lg font-black break-all group-hover:text-cyan-400 transition-colors italic">
+                        {contact.email}
+                      </a>
+                    ) : (
+                      <a
+                        href={contact.socials.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base lg:text-lg font-black break-all group-hover:text-cyan-400 transition-colors italic"
+                      >
+                        github.com/{contact.github_username}
+                      </a>
+                    )}
                   </div>
                </div>
 
@@ -806,7 +845,7 @@ const CreativeTemplate: React.FC<PortfolioProps> = ({ data }) => {
                     </button>
                   </div>
                </form>
-            </section>
+            </ScrollReveal3D>
           </div>
 
           {/* SIDEBAR RIGHT (3 cols) */}

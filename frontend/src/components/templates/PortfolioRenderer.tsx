@@ -7,17 +7,22 @@ import CreativeTemplate from './CreativeTemplate';
 interface PortfolioRendererProps {
   data: PortfolioData;
   templateName?: string;
+  embedded?: boolean;
 }
 
-const PortfolioRenderer: React.FC<PortfolioRendererProps> = ({ data, templateName = 'minimal' }) => {
+const PortfolioRenderer: React.FC<PortfolioRendererProps> = ({
+  data,
+  templateName = 'minimal',
+  embedded = false,
+}) => {
   switch (templateName.toLowerCase()) {
     case 'modern':
-      return <ModernTemplate data={data} />;
+      return <ModernTemplate data={data} embedded={embedded} />;
     case 'creative':
-      return <CreativeTemplate data={data} />;
+      return <CreativeTemplate data={data} embedded={embedded} />;
     case 'minimal':
     default:
-      return <MinimalTemplate data={data} />;
+      return <MinimalTemplate data={data} embedded={embedded} />;
   }
 };
 

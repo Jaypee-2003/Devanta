@@ -2,6 +2,57 @@ const githubService = require('../services/githubService');
 const projectService = require('../services/projectService');
 const userService = require('../services/userService');
 
+/**
+ * Public preview: build portfolio JSON from a GitHub profile URL or username (no auth, no DB).
+ * Uses the public GitHub API — only public profile + public repos.
+ */
+const previewFromGithub = async (req, res, next) => {
+  const raw =
+    req.body?.input ??
+    req.body?.url ??
+    req.body?.username;
+
+  const username = githubService.parseGithubUsername(
+    typeof raw === 'string' ? raw : String(raw ?? ''),
+  );
+
+  if (!username) {
+    return res.status(400).json({
+      error: 'Invalid GitHub profile URL or username. Try a link like https://github.com/octocat or a username.',
+    });
+  }
+
+  try {
+    const user = await githubService.fetchPublicGithubUser(username);
+    const repos = await githubService.fetchPublicGithubRepos(user.login);
+    const data = githubService.buildPortfolioFromGithubApi(user, repos);
+
+    res.status(200).json({
+      message: 'Preview generated from public GitHub data',
+      username: user.login,
+      data,
+    });
+  } catch (error) {
+    if (error.response) {
+      const { status, data, headers } = error.response;
+      if (status === 404) {
+        return res.status(404).json({ error: 'GitHub user not found.' });
+      }
+      if (status === 403) {
+        const reset = headers['x-ratelimit-reset'];
+        const hint =
+          reset && !process.env.GITHUB_TOKEN
+            ? ' GitHub limits unauthenticated requests; add GITHUB_TOKEN to the backend .env for higher limits.'
+            : '';
+        return res.status(403).json({
+          error: `${data?.message || 'GitHub API access denied or rate limited.'}${hint}`,
+        });
+      }
+    }
+    next(error);
+  }
+};
+
 const getAndSyncRepos = async (req, res, next) => {
   const userId = req.user.id;
 
@@ -47,5 +98,6 @@ const getAndSyncRepos = async (req, res, next) => {
 };
 
 module.exports = {
+  previewFromGithub,
   getAndSyncRepos,
 };

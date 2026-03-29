@@ -36,4 +36,6 @@ export interface PortfolioData {
 
 export interface PortfolioProps {
   data: PortfolioData;
+  /** When true, outer preview chrome is shown; hide duplicate nav/header inside template */
+  embedded?: boolean;
 }

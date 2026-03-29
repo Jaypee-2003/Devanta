@@ -66,7 +66,7 @@ const TemplateSwitcher: React.FC<TemplateSwitcherProps> = ({ current, onSelect }
   const theme = getThemeStyles();
 
   return (
-    <div className="fixed bottom-10 right-10 z-[100] flex items-end justify-end">
+    <div className="fixed bottom-8 right-6 sm:bottom-10 sm:right-10 z-[50] flex items-end justify-end pointer-events-auto">
       <AnimatePresence mode="wait">
         {!isExpanded ? (
           <motion.button

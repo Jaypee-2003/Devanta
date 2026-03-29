@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --devanta-ring: 262 83% 58%;
+    --devanta-glow: 292 91% 60%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  *:focus-visible {
+    outline: 2px solid rgb(167 139 250);
+    outline-offset: 3px;
+  }
+}
+
 html,
 body {
   padding: 0;
@@ -25,16 +47,39 @@ body {
   .stroke-text {
     -webkit-text-stroke: 1px currentColor;
   }
+
+  .text-gradient-hero {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-fuchsia-200 to-cyan-300;
+  }
+
+  .text-gradient-accent {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400;
+  }
+
+  /** Subtle film grain for landing / hero depth */
+  .bg-noise-fine {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  .landing-vignette {
+    background: radial-gradient(
+      ellipse 85% 70% at 50% 45%,
+      transparent 0%,
+      rgba(3, 7, 18, 0.4) 55%,
+      rgba(2, 6, 15, 0.92) 100%
+    );
+  }
 }
 
-html, body {
+html,
+body {
   @apply scrollbar-hide;
   overflow-x: hidden;
   width: 100%;
   position: relative;
 }
 
-/* Force hide all scrollbars in futuristic mode */
+/* Creative template: hide scrollbars in nested scroll areas */
 .futuristic-scroll *::-webkit-scrollbar {
   display: none !important;
 }
